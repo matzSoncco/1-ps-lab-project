@@ -23,6 +23,7 @@ Este documento describe los requisitos principales que cumple el proyecto Habit 
 - [x] Gráficos: `vue-chartjs` y `chart.js`
 - [x] Lenguajes: JavaScript, HTML5, CSS puro
 - [x] Framework de pruebas: Vitest y `@vue/test-utils`
+- [x] Agente: Gemini 3.1 Pro dentro del IDE VSCode
 
 ## 3. Estándares y arquitectura del código
 - [x] No incluye lógica de inicio de sesión/autenticación.
