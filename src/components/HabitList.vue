@@ -12,8 +12,8 @@ const todayStr = getTodayDateString()
 
 <template>
   <div class="habit-list">
-    <h2>Today's Habits</h2>
-    <p v-if="habits.length === 0" class="empty">No habits defined yet.</p>
+    <h2>Hábitos de Hoy</h2>
+    <p v-if="habits.length === 0" class="empty">No hay hábitos definidos aún.</p>
     <div v-else>
       <HabitItem 
         v-for="habit in habits" 

@@ -4,60 +4,92 @@ import { ref } from 'vue'
 const emit = defineEmits(['add-habit'])
 
 const title = ref('')
-const frequency = ref('daily')
-const timeLimit = ref('23:59')
-const labelsInput = ref('')
+const selectedDays = ref([1, 2, 3, 4, 5, 6, 0]) // Todos los días por defecto
+const timeLimit = ref('08:00') // Hora de recordatorio por defecto
+const selectedLabels = ref([])
+const newLabel = ref('')
+
+const daysOfWeek = [
+  { value: 1, label: 'Lunes' },
+  { value: 2, label: 'Martes' },
+  { value: 3, label: 'Miércoles' },
+  { value: 4, label: 'Jueves' },
+  { value: 5, label: 'Viernes' },
+  { value: 6, label: 'Sábado' },
+  { value: 0, label: 'Domingo' }
+]
+
+const availableLabels = ref(['Salud', 'Educación', 'Deporte', 'Entretenimiento', 'Trabajo'])
+
+const addNewLabel = () => {
+  const label = newLabel.value.trim()
+  if (label && !availableLabels.value.includes(label)) {
+    availableLabels.value.push(label)
+    selectedLabels.value.push(label)
+    newLabel.value = ''
+  }
+}
 
 const submitForm = () => {
-  if (!title.value.trim()) return
-
-  const labels = labelsInput.value
-    .split(',')
-    .map(l => l.trim())
-    .filter(l => l.length > 0)
+  if (!title.value.trim() || selectedDays.value.length === 0) return
 
   emit('add-habit', {
     title: title.value,
-    frequency: frequency.value,
+    frequency: [...selectedDays.value],
     timeLimit: timeLimit.value,
-    labels
+    labels: [...selectedLabels.value]
   })
 
+  // Reset form
   title.value = ''
-  frequency.value = 'daily'
-  timeLimit.value = '23:59'
-  labelsInput.value = ''
+  selectedDays.value = [1, 2, 3, 4, 5, 6, 0]
+  timeLimit.value = '08:00'
+  selectedLabels.value = []
+  newLabel.value = ''
 }
 </script>
 
 <template>
   <form @submit.prevent="submitForm" class="habit-form">
-    <h3>Create New Habit</h3>
+    <h3>Crear Nuevo Hábito</h3>
     
     <div class="form-group">
-      <label>Title:</label>
-      <input v-model="title" type="text" placeholder="e.g., Read for 30 mins" required />
+      <label>Título:</label>
+      <input v-model="title" type="text" placeholder="Ej. Leer por 30 mins" required />
     </div>
 
     <div class="form-group">
-      <label>Frequency:</label>
-      <select v-model="frequency">
-        <option value="daily">Daily</option>
-        <option value="weekly">Weekly</option>
-      </select>
+      <label>Días de la semana:</label>
+      <div class="days-checkboxes">
+        <label v-for="day in daysOfWeek" :key="day.value" class="checkbox-label">
+          <input type="checkbox" :value="day.value" v-model="selectedDays" />
+          {{ day.label }}
+        </label>
+      </div>
+      <small v-if="selectedDays.length === 0" class="error-text">Debe seleccionar al menos un día.</small>
     </div>
 
     <div class="form-group">
-      <label>Target Time (Time Limit):</label>
-      <input v-model="timeLimit" type="time" required />
+      <label>Hora del Recordatorio:</label>
+      <input v-model="timeLimit" type="time" required title="Hora en la que se debería recordar la tarea" />
+      <small class="help-text">Solo como referencia. El hábito vencerá al final del día.</small>
     </div>
 
     <div class="form-group">
-      <label>Labels (comma separated):</label>
-      <input v-model="labelsInput" type="text" placeholder="health, learning, etc." />
+      <label>Etiquetas:</label>
+      <div class="labels-selection">
+        <label v-for="label in availableLabels" :key="label" class="checkbox-label">
+          <input type="checkbox" :value="label" v-model="selectedLabels" />
+          {{ label }}
+        </label>
+      </div>
+      <div class="new-label-group">
+        <input v-model="newLabel" type="text" placeholder="Nueva etiqueta..." @keydown.enter.prevent="addNewLabel" />
+        <button type="button" @click="addNewLabel" class="btn-secondary">Añadir</button>
+      </div>
     </div>
 
-    <button type="submit" class="btn-primary">Add Habit</button>
+    <button type="submit" class="btn-primary" :disabled="selectedDays.length === 0">Añadir Hábito</button>
   </form>
 </template>
 
@@ -70,7 +102,7 @@ const submitForm = () => {
   margin-bottom: 2rem;
 }
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem;
   display: flex;
   flex-direction: column;
 }
@@ -79,10 +111,51 @@ const submitForm = () => {
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
 }
-.form-group input, .form-group select {
+.form-group input[type="text"], .form-group input[type="time"] {
   padding: 0.5rem;
   border: 1px solid var(--border-color);
   border-radius: 4px;
+}
+.days-checkboxes, .labels-selection {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: normal;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.new-label-group {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.new-label-group input {
+  flex: 1;
+}
+.btn-secondary {
+  background: #E5E7EB;
+  border: none;
+  border-radius: 4px;
+  padding: 0 1rem;
+  cursor: pointer;
+}
+.btn-secondary:hover {
+  background: #D1D5DB;
+}
+.help-text {
+  font-size: 0.75rem;
+  color: #6B7280;
+  margin-top: 0.2rem;
+}
+.error-text {
+  font-size: 0.75rem;
+  color: #EF4444;
+  margin-top: 0.2rem;
 }
 .btn-primary {
   background: var(--primary);
@@ -95,5 +168,9 @@ const submitForm = () => {
 }
 .btn-primary:hover {
   background: var(--primary-hover);
+}
+.btn-primary:disabled {
+  background: #9CA3AF;
+  cursor: not-allowed;
 }
 </style>

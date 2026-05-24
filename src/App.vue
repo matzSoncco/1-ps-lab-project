@@ -23,8 +23,8 @@ const handleDelete = (id) => {
 <template>
   <main class="app-container">
     <header>
-      <h1>Habit Tracker</h1>
-      <p>Manage your daily and weekly goals.</p>
+      <h1>Rastreador de Hábitos</h1>
+      <p>Administra tus metas diarias y semanales.</p>
     </header>
     
     <div class="layout">

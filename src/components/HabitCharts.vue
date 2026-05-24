@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ArcElement } from 'chart.js'
 import { Bar, Pie } from 'vue-chartjs'
-import { getTodayDateString, getHabitState, getCurrentTimeFormatted } from '../utils/dateUtils'
+import { getTodayDateString, getHabitState } from '../utils/dateUtils'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement)
 
@@ -13,26 +13,27 @@ const props = defineProps({
 // Compute completions today
 const completionsData = computed(() => {
   const todayStr = getTodayDateString()
-  const currentTime = getCurrentTimeFormatted()
   
   let done = 0
   let pending = 0
   let overdue = 0
+  let notScheduled = 0
 
   props.habits.forEach(h => {
-    const s = getHabitState(h, todayStr, todayStr, currentTime)
-    if (s === 'DONE') done++
-    else if (s === 'OVERDUE') overdue++
-    else pending++
+    const s = getHabitState(h, todayStr, todayStr)
+    if (s === 'COMPLETADO') done++
+    else if (s === 'VENCIDO') overdue++
+    else if (s === 'PENDIENTE') pending++
+    else if (s === 'NO_PROGRAMADO') notScheduled++
   })
 
   return {
-    labels: ['Done', 'Pending', 'Overdue'],
+    labels: ['Completados', 'Pendientes', 'Vencidos', 'No Programados'],
     datasets: [
       {
-        label: 'Today\'s Habits',
-        backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
-        data: [done, pending, overdue]
+        label: 'Hábitos de Hoy',
+        backgroundColor: ['#10B981', '#FBBF24', '#EF4444', '#E5E7EB'],
+        data: [done, pending, overdue, notScheduled]
       }
     ]
   }
@@ -65,13 +66,13 @@ const pieOptions = { responsive: true, maintainAspectRatio: false }
 <template>
   <div class="charts-container">
     <div class="chart-box">
-      <h3>Today's Overview</h3>
+      <h3>Resumen de Hoy</h3>
       <div class="canvas-wrapper">
         <Bar :data="completionsData" :options="barOptions" />
       </div>
     </div>
     <div class="chart-box" v-if="labelsData.labels.length > 0">
-      <h3>Labels Distribution</h3>
+      <h3>Distribución de Etiquetas</h3>
       <div class="canvas-wrapper">
         <Pie :data="labelsData" :options="pieOptions" />
       </div>
