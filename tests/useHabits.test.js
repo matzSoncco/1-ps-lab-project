@@ -32,7 +32,7 @@ describe('useHabits composable', () => {
     const id = habits.value[0].id
     
     toggleHabitRecord(id, '2023-10-25')
-    expect(habits.value[0].records['2023-10-25']).toBe('DONE')
+    expect(habits.value[0].records['2023-10-25']).toBe('COMPLETADO')
     
     toggleHabitRecord(id, '2023-10-25')
     expect(habits.value[0].records['2023-10-25']).toBeUndefined()
